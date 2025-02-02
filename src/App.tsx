@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import SearchInput from './components/SearchInput/SearchInput.tsx';
 import './App.css';
+import SearchResult from './components/SearchResult/SearchResult.tsx';
 
 class App extends Component {
   render() {
@@ -10,7 +11,9 @@ class App extends Component {
           <h1 className="title">Pokemon finder</h1>
           <SearchInput />
         </header>
-        <main></main>
+        <main>
+          <SearchResult />
+        </main>
       </>
     );
   }
