@@ -8,6 +8,7 @@ import {
   SearchContextType,
 } from '../../context/SearchContext.tsx';
 import { isPokemon } from '../../utils/isPokemon.ts';
+import PokemonsList from '../PokemonsList/PokemonsList.tsx';
 
 type SearchResultProps = object;
 type SearchResultState = {
@@ -87,9 +88,20 @@ class SearchResult extends Component<SearchResultProps, SearchResultState> {
       return 'Nothing found';
     }
 
-    if (isPokemon(response)) return 'Pokemon';
+    if (isPokemon(response))
+      return (
+        <PokemonsList items={[{ name: response.name, id: response.id }]} />
+      );
 
-    return 'Pokemon list';
+    return (
+      <PokemonsList
+        items={response.results.map((item) => {
+          const id = PokemonAPI.getPokemonIdFromUrl(item.url);
+
+          return { name: item.name, id };
+        })}
+      />
+    );
   }
 }
 
