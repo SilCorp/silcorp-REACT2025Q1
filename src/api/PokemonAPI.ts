@@ -23,17 +23,9 @@ export type PokemonSprites = {
 class PokemonAPI {
   private url = 'https://pokeapi.co/api/v2/pokemon/';
 
-  getAll = async (): Promise<NamedAPIResourceList> => {
-    const response = await fetch(this.url);
+  getAll = () => fetch(this.url);
 
-    return await response.json();
-  };
-
-  getByName = async (name: string): Promise<Pokemon> => {
-    const response = await fetch(this.url + name);
-
-    return await response.json();
-  };
+  getByName = (name: string) => fetch(this.url + name);
 }
 
 export default new PokemonAPI();

@@ -13,6 +13,7 @@ type SearchResultProps = object;
 type SearchResultState = {
   searchValue?: string;
   response: null | Pokemon | NamedAPIResourceList;
+  requestStatus: 'loading' | 'error' | 'finished' | 'idle';
 };
 
 class SearchResult extends Component<SearchResultProps, SearchResultState> {
@@ -21,40 +22,70 @@ class SearchResult extends Component<SearchResultProps, SearchResultState> {
   constructor(props: SearchResultProps) {
     super(props);
 
+    this.requestPokemons = this.requestPokemons.bind(this);
+
     this.state = {
       searchValue: undefined,
       response: null,
+      requestStatus: 'idle',
     };
   }
 
-  async componentDidMount() {
-    const contextSearchValue = (this.context as SearchContextType).value;
-    this.setState({ searchValue: contextSearchValue });
-    const response = contextSearchValue
-      ? await PokemonAPI.getByName(contextSearchValue)
-      : await PokemonAPI.getAll();
+  async requestPokemons(searchValue: SearchContextType['value']) {
+    this.setState({ searchValue, requestStatus: 'loading' });
 
-    this.setState({ response });
+    try {
+      const response = searchValue
+        ? await PokemonAPI.getByName(searchValue)
+        : await PokemonAPI.getAll();
+
+      this.setState({ requestStatus: 'finished' });
+
+      if (response.ok) {
+        this.setState({
+          response: (await response.json()) as Pokemon | NamedAPIResourceList,
+        });
+      } else {
+        this.setState({
+          response: null,
+        });
+      }
+    } catch {
+      this.setState({ requestStatus: 'error' });
+    }
   }
 
-  async componentDidUpdate() {
+  componentDidUpdate() {
     const contextSearchValue = (this.context as SearchContextType).value;
 
     if (this.state.searchValue === contextSearchValue) return;
 
-    this.setState({ searchValue: contextSearchValue });
-
-    const response = contextSearchValue
-      ? await PokemonAPI.getByName(contextSearchValue)
-      : await PokemonAPI.getAll();
-
-    this.setState({ response });
+    this.requestPokemons(contextSearchValue);
   }
 
   render() {
     const response = this.state.response;
+    const requestStatus = this.state.requestStatus;
 
-    if (!response) return 'Loader';
+    const isIdle = requestStatus === 'idle';
+    const isLoading = requestStatus === 'loading';
+    const isError = requestStatus === 'error';
+
+    if (isIdle) {
+      return 'Click search button to make request';
+    }
+
+    if (isLoading) {
+      return 'Loading...';
+    }
+
+    if (isError) {
+      return 'Oops, something went wrong';
+    }
+
+    if (response === null) {
+      return 'Nothing found';
+    }
 
     if (isPokemon(response)) return 'Pokemon';
 
