@@ -10,7 +10,7 @@ class SearchInput extends Component {
   inputRef = createRef<HTMLInputElement>();
 
   onSearch = () => {
-    const inputValue = this.inputRef.current?.value || '';
+    const inputValue = (this.inputRef.current?.value || '').trim();
     (this.context as SearchContextType).setValue(inputValue);
   };
 
@@ -19,7 +19,12 @@ class SearchInput extends Component {
       <SearchContext.Consumer>
         {({ value }) => (
           <search className="search-input">
-            <input type="search" ref={this.inputRef} defaultValue={value} />
+            <input
+              type="search"
+              ref={this.inputRef}
+              defaultValue={value}
+              placeholder="Name or Id"
+            />
             <button onClick={this.onSearch}>Search</button>
           </search>
         )}
