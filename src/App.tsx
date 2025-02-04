@@ -2,6 +2,7 @@ import { Component } from 'react';
 import SearchInput from './components/SearchInput/SearchInput.tsx';
 import './App.css';
 import SearchResult from './components/SearchResult/SearchResult.tsx';
+import ErrorButton from './components/ErrorButton/ErrorButton.tsx';
 
 class App extends Component {
   render() {
@@ -14,6 +15,9 @@ class App extends Component {
         <main>
           <SearchResult />
         </main>
+        <footer>
+          <ErrorButton />
+        </footer>
       </>
     );
   }
