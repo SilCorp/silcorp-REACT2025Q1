@@ -87,7 +87,11 @@ class SearchResult extends Component<SearchResultProps, SearchResultState> {
     }
 
     if (isError) {
-      return 'Oops, something went wrong';
+      return (
+        <div className="search-result">
+          <span>Oops, something went wrong</span>
+        </div>
+      );
     }
 
     if (response === null) {
