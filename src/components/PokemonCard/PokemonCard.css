@@ -1,0 +1,17 @@
+.pokemon-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+}
+
+.pokemon-card__image {
+  width: 96px;
+  height: 96px;
+}
+
+.pokemon-card__caption {
+  padding: 6px;
+}
