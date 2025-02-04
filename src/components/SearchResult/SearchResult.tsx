@@ -9,6 +9,7 @@ import {
 } from '../../context/SearchContext.tsx';
 import { isPokemon } from '../../utils/isPokemon.ts';
 import PokemonsList from '../PokemonsList/PokemonsList.tsx';
+import Loader from '../Loader/Loader.tsx';
 
 type SearchResultProps = object;
 type SearchResultState = {
@@ -77,7 +78,7 @@ class SearchResult extends Component<SearchResultProps, SearchResultState> {
     }
 
     if (isLoading) {
-      return 'Loading...';
+      return <Loader />;
     }
 
     if (isError) {
