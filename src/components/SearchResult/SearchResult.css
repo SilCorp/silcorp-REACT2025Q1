@@ -1,0 +1,7 @@
+.search-result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  font-size: 30px;
+}

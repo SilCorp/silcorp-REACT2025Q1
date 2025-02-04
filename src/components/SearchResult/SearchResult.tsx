@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import './SearchResult.css';
 import PokemonAPI, {
   NamedAPIResourceList,
   Pokemon,
@@ -41,8 +42,6 @@ class SearchResult extends Component<SearchResultProps, SearchResultState> {
         ? await PokemonAPI.getByName(searchValue)
         : await PokemonAPI.getAll();
 
-      this.setState({ requestStatus: 'finished' });
-
       if (response.ok) {
         this.setState({
           response: (await response.json()) as Pokemon | NamedAPIResourceList,
@@ -52,6 +51,8 @@ class SearchResult extends Component<SearchResultProps, SearchResultState> {
           response: null,
         });
       }
+
+      this.setState({ requestStatus: 'finished' });
     } catch {
       this.setState({ requestStatus: 'error' });
     }
@@ -74,7 +75,11 @@ class SearchResult extends Component<SearchResultProps, SearchResultState> {
     const isError = requestStatus === 'error';
 
     if (isIdle) {
-      return 'Click search button to make request';
+      return (
+        <div className="search-result">
+          <span>Click search button to make request</span>
+        </div>
+      );
     }
 
     if (isLoading) {
@@ -86,7 +91,11 @@ class SearchResult extends Component<SearchResultProps, SearchResultState> {
     }
 
     if (response === null) {
-      return 'Nothing found';
+      return (
+        <div className="search-result">
+          <span>Nothing found</span>
+        </div>
+      );
     }
 
     if (isPokemon(response))
