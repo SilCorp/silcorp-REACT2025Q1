@@ -1,5 +1,7 @@
 import { Component, createContext, PropsWithChildren } from 'react';
 
+const localStorageSearchValueKey = 'searchValue';
+
 export type SearchContextType = {
   value: string;
   setValue: (value: string) => void;
@@ -21,10 +23,11 @@ export class SearchContextProvider extends Component<
 
     this.setValue = (value: string) => {
       this.setState({ value });
+      localStorage.setItem(localStorageSearchValueKey, value);
     };
 
     this.state = {
-      value: '',
+      value: localStorage.getItem(localStorageSearchValueKey) || '',
       setValue: this.setValue,
     };
   }
