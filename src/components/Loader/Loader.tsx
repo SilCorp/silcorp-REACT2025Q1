@@ -1,49 +1,32 @@
-import { Component } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './Loader.css';
 
-type LoaderProps = object;
-type LoaderState = {
-  dots: string;
-};
+const Loader = () => {
+  const [dots, setDots] = useState(' '.repeat(3));
 
-class Loader extends Component<LoaderProps, LoaderState> {
-  private timer?: number;
-
-  constructor(props: LoaderProps) {
-    super(props);
-
-    this.state = {
-      dots: ' '.repeat(3),
-    };
-  }
-
-  manageDots = () => {
-    this.setState(({ dots }) => {
+  const manageDots = useCallback(() => {
+    setDots((prevValue) => {
       let newDotsValue = ' '.repeat(3);
 
-      if (dots.charAt(2) !== '.') {
-        newDotsValue = dots.replace(' ', '.');
+      if (prevValue.charAt(2) !== '.') {
+        newDotsValue = prevValue.replace(' ', '.');
       }
 
-      return { dots: newDotsValue };
+      return newDotsValue;
     });
-  };
+  }, []);
 
-  componentDidMount() {
-    this.timer = setInterval(this.manageDots, 500);
-  }
+  useEffect(() => {
+    const timer = setInterval(manageDots, 500);
 
-  componentWillUnmount() {
-    clearInterval(this.timer);
-  }
+    return () => clearInterval(timer);
+  }, [manageDots]);
 
-  render() {
-    return (
-      <div className="loader">
-        <span>Loading{this.state.dots}</span>
-      </div>
-    );
-  }
-}
+  return (
+    <div className="loader">
+      <span>Loading{dots}</span>
+    </div>
+  );
+};
 
 export default Loader;
