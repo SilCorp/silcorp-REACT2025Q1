@@ -1,36 +1,34 @@
-import { Component, createRef } from 'react';
+import { useContext, useRef } from 'react';
 import './SearchInput.css';
 import {
   SearchContext,
   SearchContextType,
 } from '../../context/SearchContext.tsx';
 
-class SearchInput extends Component {
-  static contextType = SearchContext;
-  inputRef = createRef<HTMLInputElement>();
+const SearchInput = () => {
+  const context = useContext(SearchContext);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  onSearch = () => {
-    const inputValue = (this.inputRef.current?.value || '').trim();
-    (this.context as SearchContextType).setValue(inputValue);
+  const onSearch = () => {
+    const inputValue = (inputRef.current?.value || '').trim();
+    (context as SearchContextType).setValue(inputValue);
   };
 
-  render() {
-    return (
-      <SearchContext.Consumer>
-        {({ value }) => (
-          <search className="search-input">
-            <input
-              type="search"
-              ref={this.inputRef}
-              defaultValue={value}
-              placeholder="Name or Id"
-            />
-            <button onClick={this.onSearch}>Search</button>
-          </search>
-        )}
-      </SearchContext.Consumer>
-    );
-  }
-}
+  return (
+    <SearchContext.Consumer>
+      {({ value }) => (
+        <search className="search-input">
+          <input
+            type="search"
+            ref={inputRef}
+            defaultValue={value}
+            placeholder="Name or Id"
+          />
+          <button onClick={onSearch}>Search</button>
+        </search>
+      )}
+    </SearchContext.Consumer>
+  );
+};
 
 export default SearchInput;
