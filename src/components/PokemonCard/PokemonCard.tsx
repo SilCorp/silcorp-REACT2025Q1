@@ -1,6 +1,6 @@
-import { Component } from 'react';
 import PokemonAPI, { Pokemon } from '../../api/PokemonAPI.ts';
 import './PokemonCard.css';
+import { useMemo } from 'react';
 
 export type PokemonCardProps = {
   name: Pokemon['name'];
@@ -8,27 +8,17 @@ export type PokemonCardProps = {
   className?: string;
 };
 
-class PokemonCard extends Component<PokemonCardProps> {
-  static defaultProps = {
-    className: '',
-  };
+const PokemonCard = (props: PokemonCardProps) => {
+  const { name, id, className = '' } = props;
 
-  render() {
-    const imageSrc = PokemonAPI.getPokemonSprite(this.props.id);
+  const imageSrc = useMemo(() => PokemonAPI.getPokemonSprite(id), [id]);
 
-    return (
-      <figure className={`pokemon-card ${this.props.className}`}>
-        <img
-          className="pokemon-card__image"
-          src={imageSrc}
-          alt={this.props.name}
-        />
-        <figcaption className="pokemon-card__caption">
-          {this.props.name}
-        </figcaption>
-      </figure>
-    );
-  }
-}
+  return (
+    <figure className={`pokemon-card ${className}`}>
+      <img className="pokemon-card__image" src={imageSrc} alt={name} />
+      <figcaption className="pokemon-card__caption">{name}</figcaption>
+    </figure>
+  );
+};
 
 export default PokemonCard;
