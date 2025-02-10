@@ -1,9 +1,6 @@
 import { useContext, useRef } from 'react';
 import './SearchInput.css';
-import {
-  SearchContext,
-  SearchContextType,
-} from '../../context/SearchContext.tsx';
+import { SearchContext } from '../../context/SearchContext.tsx';
 
 const SearchInput = () => {
   const context = useContext(SearchContext);
@@ -11,7 +8,7 @@ const SearchInput = () => {
 
   const onSearch = () => {
     const inputValue = (inputRef.current?.value || '').trim();
-    (context as SearchContextType).setValue(inputValue);
+    context.setValue(inputValue);
   };
 
   return (

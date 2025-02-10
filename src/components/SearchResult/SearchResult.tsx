@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import './SearchResult.css';
 import PokemonAPI, {
   NamedAPIResourceList,
@@ -12,111 +12,75 @@ import { isPokemon } from '../../utils/isPokemon.ts';
 import PokemonsList from '../PokemonsList/PokemonsList.tsx';
 import Loader from '../Loader/Loader.tsx';
 
-type SearchResultProps = object;
-type SearchResultState = {
-  searchValue?: string;
-  response: null | Pokemon | NamedAPIResourceList;
-  requestStatus: 'loading' | 'error' | 'finished' | 'idle';
-};
+const SearchResult = () => {
+  const context = useContext(SearchContext);
+  const [response, setResponse] = useState<
+    null | Pokemon | NamedAPIResourceList
+  >(null);
+  const [requestStatus, setRequestStatus] = useState<
+    'loading' | 'error' | 'finished'
+  >('loading');
 
-class SearchResult extends Component<SearchResultProps, SearchResultState> {
-  static contextType = SearchContext;
-
-  constructor(props: SearchResultProps) {
-    super(props);
-
-    this.requestPokemons = this.requestPokemons.bind(this);
-
-    this.state = {
-      searchValue: undefined,
-      response: null,
-      requestStatus: 'idle',
-    };
-  }
-
-  async requestPokemons(searchValue: SearchContextType['value']) {
-    this.setState({ searchValue, requestStatus: 'loading' });
-
+  const requestPokemons = async (searchValue: SearchContextType['value']) => {
+    setRequestStatus('loading');
     try {
       const response = searchValue
         ? await PokemonAPI.getByName(searchValue)
         : await PokemonAPI.getAll();
 
       if (response.ok) {
-        this.setState({
-          response: (await response.json()) as Pokemon | NamedAPIResourceList,
-        });
+        setResponse((await response.json()) as Pokemon | NamedAPIResourceList);
       } else {
-        this.setState({
-          response: null,
-        });
+        setResponse(null);
       }
 
-      this.setState({ requestStatus: 'finished' });
+      setRequestStatus('finished');
     } catch {
-      this.setState({ requestStatus: 'error' });
+      setRequestStatus('error');
     }
+  };
+
+  useEffect(() => {
+    const contextSearchValue = context.value;
+
+    requestPokemons(contextSearchValue);
+  }, [context.value]);
+
+  const isLoading = requestStatus === 'loading';
+  const isError = requestStatus === 'error';
+
+  if (isLoading) {
+    return <Loader />;
   }
 
-  componentDidUpdate() {
-    const contextSearchValue = (this.context as SearchContextType).value;
-
-    if (this.state.searchValue === contextSearchValue) return;
-
-    this.requestPokemons(contextSearchValue);
-  }
-
-  render() {
-    const response = this.state.response;
-    const requestStatus = this.state.requestStatus;
-
-    const isIdle = requestStatus === 'idle';
-    const isLoading = requestStatus === 'loading';
-    const isError = requestStatus === 'error';
-
-    if (isIdle) {
-      return (
-        <div className="search-result">
-          <span>Click search button to make request</span>
-        </div>
-      );
-    }
-
-    if (isLoading) {
-      return <Loader />;
-    }
-
-    if (isError) {
-      return (
-        <div className="search-result">
-          <span>Oops, something went wrong</span>
-        </div>
-      );
-    }
-
-    if (response === null) {
-      return (
-        <div className="search-result">
-          <span>Nothing found</span>
-        </div>
-      );
-    }
-
-    if (isPokemon(response))
-      return (
-        <PokemonsList items={[{ name: response.name, id: response.id }]} />
-      );
-
+  if (isError) {
     return (
-      <PokemonsList
-        items={response.results.map((item) => {
-          const id = PokemonAPI.getPokemonIdFromUrl(item.url);
-
-          return { name: item.name, id };
-        })}
-      />
+      <div className="search-result">
+        <span>Oops, something went wrong</span>
+      </div>
     );
   }
-}
+
+  if (response === null) {
+    return (
+      <div className="search-result">
+        <span>Nothing found</span>
+      </div>
+    );
+  }
+
+  if (isPokemon(response))
+    return <PokemonsList items={[{ name: response.name, id: response.id }]} />;
+
+  return (
+    <PokemonsList
+      items={response.results.map((item) => {
+        const id = PokemonAPI.getPokemonIdFromUrl(item.url);
+
+        return { name: item.name, id };
+      })}
+    />
+  );
+};
 
 export default SearchResult;
