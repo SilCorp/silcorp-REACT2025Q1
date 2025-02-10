@@ -40,9 +40,10 @@ class PokemonAPI {
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
   };
 
-  getAll = () => fetch(this.url);
+  getAll = (signal?: AbortSignal) => fetch(this.url, { signal });
 
-  getByName = (name: string) => fetch(this.url + name);
+  getByName = (name: string, signal?: AbortSignal) =>
+    fetch(this.url + name, { signal });
 }
 
 export default new PokemonAPI();

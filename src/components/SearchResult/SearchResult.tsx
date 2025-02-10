@@ -21,12 +21,15 @@ const SearchResult = () => {
     'loading' | 'error' | 'finished'
   >('loading');
 
-  const requestPokemons = async (searchValue: SearchContextType['value']) => {
+  const requestPokemons = async (
+    searchValue: SearchContextType['value'],
+    signal?: AbortSignal
+  ) => {
     setRequestStatus('loading');
     try {
       const response = searchValue
-        ? await PokemonAPI.getByName(searchValue)
-        : await PokemonAPI.getAll();
+        ? await PokemonAPI.getByName(searchValue, signal)
+        : await PokemonAPI.getAll(signal);
 
       if (response.ok) {
         setResponse((await response.json()) as Pokemon | NamedAPIResourceList);
@@ -36,14 +39,23 @@ const SearchResult = () => {
 
       setRequestStatus('finished');
     } catch {
+      if (signal?.aborted) {
+        return;
+      }
+
       setRequestStatus('error');
     }
   };
 
   useEffect(() => {
-    const contextSearchValue = context.value;
+    const abortController = new AbortController();
+    const signal = abortController.signal;
 
-    requestPokemons(contextSearchValue);
+    requestPokemons(context.value, signal);
+
+    return () => {
+      abortController.abort();
+    };
   }, [context.value]);
 
   const isLoading = requestStatus === 'loading';
