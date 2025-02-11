@@ -11,12 +11,16 @@ import {
 } from 'react-router-dom';
 import { SearchContextProvider } from './context/SearchContext.tsx';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary.tsx';
+import NotFound from './components/NotFound/NotFound.tsx';
 
 const $root = document.getElementById('root');
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<App />} errorElement={<Fallback />}></Route>
+    <>
+      <Route path="/" element={<App />} errorElement={<Fallback />}></Route>
+      <Route path="*" element={<NotFound />} />
+    </>
   )
 );
 
