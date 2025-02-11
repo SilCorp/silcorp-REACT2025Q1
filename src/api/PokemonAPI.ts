@@ -22,6 +22,7 @@ export type PokemonSprites = {
 
 class PokemonAPI {
   private url = 'https://pokeapi.co/api/v2/pokemon/';
+  public limit = 20;
 
   getPokemonIdFromSprite = (spriteUrl: PokemonSprites['front_default']) => {
     const tokens = spriteUrl.split('/');
@@ -40,7 +41,19 @@ class PokemonAPI {
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
   };
 
-  getAll = (signal?: AbortSignal) => fetch(this.url, { signal });
+  getAll = ({
+    signal,
+    offset = 0,
+  }: {
+    offset?: number;
+    signal?: AbortSignal;
+  }) => {
+    const searchParams = new URLSearchParams();
+    searchParams.set('offset', String(offset));
+
+    const url = `${this.url}?${searchParams}`;
+    return fetch(url, { signal });
+  };
 
   getByName = (name: string, signal?: AbortSignal) =>
     fetch(this.url + name, { signal });

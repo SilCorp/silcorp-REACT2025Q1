@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import './SearchResult.css';
 import PokemonAPI, {
   NamedAPIResourceList,
@@ -11,9 +11,12 @@ import {
 import { isPokemon } from '../../utils/isPokemon.ts';
 import PokemonsList from '../PokemonsList/PokemonsList.tsx';
 import Loader from '../Loader/Loader.tsx';
+import Pagination from '../Pagination/Pagination.tsx';
 
 const SearchResult = () => {
   const context = useContext(SearchContext);
+  const [offset, setOffset] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
   const [response, setResponse] = useState<
     null | Pokemon | NamedAPIResourceList
   >(null);
@@ -21,42 +24,47 @@ const SearchResult = () => {
     'loading' | 'error' | 'finished'
   >('loading');
 
-  const requestPokemons = async (
-    searchValue: SearchContextType['value'],
-    signal?: AbortSignal
-  ) => {
-    setRequestStatus('loading');
-    try {
-      const response = searchValue
-        ? await PokemonAPI.getByName(searchValue, signal)
-        : await PokemonAPI.getAll(signal);
+  const requestPokemons = useCallback(
+    async (
+      searchValue: SearchContextType['value'],
+      { signal, offset }: { offset?: number; signal?: AbortSignal }
+    ) => {
+      setRequestStatus('loading');
+      try {
+        const response = searchValue
+          ? await PokemonAPI.getByName(searchValue, signal)
+          : await PokemonAPI.getAll({ signal, offset });
 
-      if (response.ok) {
-        setResponse((await response.json()) as Pokemon | NamedAPIResourceList);
-      } else {
-        setResponse(null);
+        if (response.ok) {
+          setResponse(
+            (await response.json()) as Pokemon | NamedAPIResourceList
+          );
+        } else {
+          setResponse(null);
+        }
+
+        setRequestStatus('finished');
+      } catch {
+        if (signal?.aborted) {
+          return;
+        }
+
+        setRequestStatus('error');
       }
-
-      setRequestStatus('finished');
-    } catch {
-      if (signal?.aborted) {
-        return;
-      }
-
-      setRequestStatus('error');
-    }
-  };
+    },
+    []
+  );
 
   useEffect(() => {
     const abortController = new AbortController();
     const signal = abortController.signal;
 
-    requestPokemons(context.value, signal);
+    requestPokemons(context.value, { offset, signal });
 
     return () => {
       abortController.abort();
     };
-  }, [context.value]);
+  }, [context.value, offset, requestPokemons]);
 
   const isLoading = requestStatus === 'loading';
   const isError = requestStatus === 'error';
@@ -85,13 +93,24 @@ const SearchResult = () => {
     return <PokemonsList items={[{ name: response.name, id: response.id }]} />;
 
   return (
-    <PokemonsList
-      items={response.results.map((item) => {
-        const id = PokemonAPI.getPokemonIdFromUrl(item.url);
+    <>
+      <PokemonsList
+        items={response.results.map((item) => {
+          const id = PokemonAPI.getPokemonIdFromUrl(item.url);
 
-        return { name: item.name, id };
-      })}
-    />
+          return { name: item.name, id };
+        })}
+      />
+      <Pagination
+        total={response.count}
+        limit={PokemonAPI.limit}
+        page={currentPage}
+        onChange={(page, offset) => {
+          setCurrentPage(page);
+          setOffset(offset);
+        }}
+      />
+    </>
   );
 };
 
