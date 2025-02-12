@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import './SearchResult.css';
 import PokemonAPI, {
   NamedAPIResourceList,
@@ -16,12 +16,15 @@ import { useSearchParams } from 'react-router-dom';
 
 const SearchResult = () => {
   const context = useContext(SearchContext);
-  const [offset, setOffset] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams([['page', '1']]);
   const currentPage = Number(searchParams.get('page')) - 1;
-  const setCurrentPage = (page: number) => {
-    setSearchParams([['page', String(page + 1)]]);
-  };
+  const offset = useMemo(() => currentPage * PokemonAPI.limit, [currentPage]);
+  const setCurrentPage = useCallback(
+    (page: number) => {
+      setSearchParams([['page', String(page + 1)]]);
+    },
+    [setSearchParams]
+  );
 
   const [response, setResponse] = useState<
     null | Pokemon | NamedAPIResourceList
@@ -111,10 +114,7 @@ const SearchResult = () => {
         total={response.count}
         limit={PokemonAPI.limit}
         page={currentPage}
-        onChange={(page, offset) => {
-          setCurrentPage(page);
-          setOffset(offset);
-        }}
+        onChange={setCurrentPage}
       />
     </>
   );

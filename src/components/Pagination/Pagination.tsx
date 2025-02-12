@@ -6,7 +6,7 @@ type PaginationProps = {
   total: number;
   limit: number;
   page: number;
-  onChange: (page: number, offset: number) => void;
+  onChange: (page: number) => void;
 };
 
 const Pagination = (props: PaginationProps) => {
@@ -22,7 +22,7 @@ const Pagination = (props: PaginationProps) => {
 
     const newPage = typeof pageNum === 'string' ? newPageMap[pageNum] : pageNum;
 
-    onChange(newPage, newPage * limit);
+    onChange(newPage);
   };
 
   const isFirstPage = page === 0;
