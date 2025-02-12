@@ -48,11 +48,13 @@ class PokemonAPI {
     offset?: number;
     signal?: AbortSignal;
   }) => {
-    const searchParams = new URLSearchParams();
-    searchParams.set('offset', String(offset));
+    const url = new URL(this.url);
 
-    const url = `${this.url}?${searchParams}`;
-    return fetch(url, { signal });
+    if (offset) {
+      url.searchParams.set('offset', String(offset));
+    }
+
+    return fetch(url.toString(), { signal });
   };
 
   getByName = (name: string, signal?: AbortSignal) =>
