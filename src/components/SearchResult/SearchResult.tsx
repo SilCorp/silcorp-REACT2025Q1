@@ -17,10 +17,10 @@ import { useSearchParams } from 'react-router-dom';
 const SearchResult = () => {
   const context = useContext(SearchContext);
   const [offset, setOffset] = useState(0);
-  const [searchParams, setSearchParams] = useSearchParams([['page', '0']]);
-  const currentPage = Number(searchParams.get('page')) || 0;
+  const [searchParams, setSearchParams] = useSearchParams([['page', '1']]);
+  const currentPage = Number(searchParams.get('page')) - 1;
   const setCurrentPage = (page: number) => {
-    setSearchParams([['page', String(page)]]);
+    setSearchParams([['page', String(page + 1)]]);
   };
 
   const [response, setResponse] = useState<
