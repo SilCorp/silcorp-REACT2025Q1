@@ -1,6 +1,5 @@
-import { Component, createContext, PropsWithChildren } from 'react';
-
-const localStorageSearchValueKey = 'searchValue';
+import { createContext, PropsWithChildren, useMemo } from 'react';
+import { useLocalStorage } from '../hooks/useLocalStorage.ts';
 
 export type SearchContextType = {
   value: string;
@@ -12,31 +11,18 @@ export const SearchContext = createContext<SearchContextType>({
   setValue: () => {},
 });
 
-export class SearchContextProvider extends Component<
-  PropsWithChildren,
-  SearchContextType
-> {
-  private setValue: (value: string) => void;
+export const SearchContextProvider = ({ children }: PropsWithChildren) => {
+  const [storageValue, setStorageValue] = useLocalStorage('searchValue', '');
 
-  constructor(props: PropsWithChildren) {
-    super(props);
+  const state = useMemo(
+    () => ({
+      value: storageValue || '',
+      setValue: setStorageValue,
+    }),
+    [setStorageValue, storageValue]
+  );
 
-    this.setValue = (value: string) => {
-      this.setState({ value });
-      localStorage.setItem(localStorageSearchValueKey, value);
-    };
-
-    this.state = {
-      value: localStorage.getItem(localStorageSearchValueKey) || '',
-      setValue: this.setValue,
-    };
-  }
-
-  render() {
-    return (
-      <SearchContext.Provider value={this.state}>
-        {this.props.children}
-      </SearchContext.Provider>
-    );
-  }
-}
+  return (
+    <SearchContext.Provider value={state}>{children}</SearchContext.Provider>
+  );
+};

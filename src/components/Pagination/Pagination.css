@@ -1,0 +1,6 @@
+.pagination {
+}
+
+.pagination__button--active {
+  background-color: darkgray;
+}
