@@ -12,11 +12,17 @@ import { isPokemon } from '../../utils/isPokemon.ts';
 import PokemonsList from '../PokemonsList/PokemonsList.tsx';
 import Loader from '../Loader/Loader.tsx';
 import Pagination from '../Pagination/Pagination.tsx';
+import { useSearchParams } from 'react-router-dom';
 
 const SearchResult = () => {
   const context = useContext(SearchContext);
   const [offset, setOffset] = useState(0);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams([['page', '0']]);
+  const currentPage = Number(searchParams.get('page')) || 0;
+  const setCurrentPage = (page: number) => {
+    setSearchParams([['page', String(page)]]);
+  };
+
   const [response, setResponse] = useState<
     null | Pokemon | NamedAPIResourceList
   >(null);
